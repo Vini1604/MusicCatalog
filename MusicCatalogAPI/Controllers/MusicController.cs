@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MusicCatalogAPI.Models;
 using MusicCatalogAPI.Models.Dtos;
 using MusicCatalogAPI.Repository.IRepository;
 using System;
@@ -46,5 +47,56 @@ namespace MusicCatalogAPI.Controllers
             var musicDto = _mapper.Map<MusicDto>(music);
             return Ok(musicDto);
         }
+
+        [HttpPost]
+        public IActionResult CreateMusic([FromBody] MusicDto musicDto)
+        {
+            if (musicDto == null)
+            {
+                return BadRequest(ModelState);
+            }
+            var music = _mapper.Map<Music>(musicDto);
+            if (!_musicRepository.CreateMusic(music))
+            {
+                ModelState.AddModelError("", $"Something went wrong when saving the record {music.Name}");
+                return StatusCode(500, ModelState);
+            }
+            return CreatedAtRoute("GetMusic", new { musicId = music.Id }, music);
+        }
+
+        [HttpPatch("{musicId:int}", Name = "UpdateMusic")]
+        public IActionResult UpdateMusic(int musicId,[FromBody] MusicDto musicDto)
+        {
+            if (musicDto == null || musicId != musicDto.Id)
+            {
+                return BadRequest(ModelState);
+            }
+            var music = _mapper.Map<Music>(musicDto);
+            if (!_musicRepository.UpdateMusic(music))
+            {
+                ModelState.AddModelError("", $"Something went wrong when update the record {music.Name}");
+                return StatusCode(500, ModelState);
+            }
+            return NoContent();
+        }
+
+        [HttpDelete("{musicId:int}", Name = "DeleteMusic")]
+        public IActionResult DeleteMusic(int musicId)
+        {
+            if (!_musicRepository.MusicExists(musicId))
+            {
+                return NotFound();
+            }
+           
+            var music = _musicRepository.GetMusic(musicId);
+           
+            if (!_musicRepository.DeleteMusic(music))
+            {
+                ModelState.AddModelError("", $"Something went wrong when deleting the record {music.Id}");
+                return StatusCode(500, ModelState);
+            }
+            return NoContent();
+        }
+
     }
 }
