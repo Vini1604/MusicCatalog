@@ -10,6 +10,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.SqlServer;
+using MusicCatalogAPI.Data;
+using Microsoft.EntityFrameworkCore;
+using MusicCatalogAPI.Repository.IRepository;
+using MusicCatalogAPI.Repository;
+using MusicCatalogAPI.MusicCatalogMapper;
 
 namespace MusicCatalogAPI
 {
@@ -25,6 +31,10 @@ namespace MusicCatalogAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<ApplicationDbContext>
+                (options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddScoped<IMusicRepository, MusicRepository>();
+            services.AddAutoMapper(typeof(MusicCatalogMappings));
             services.AddControllers();
         }
 
