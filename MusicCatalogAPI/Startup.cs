@@ -35,6 +35,15 @@ namespace MusicCatalogAPI
                 (options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped<IMusicRepository, MusicRepository>();
             services.AddAutoMapper(typeof(MusicCatalogMappings));
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("MusicCatalogOpenAPISpec",
+                    new Microsoft.OpenApi.Models.OpenApiInfo()
+                    {
+                        Title = "MusicCatalogAPI",
+                        Version = "1"
+                    });
+            });
             services.AddControllers();
         }
 
@@ -47,7 +56,12 @@ namespace MusicCatalogAPI
             }
 
             app.UseHttpsRedirection();
-
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/MusicCatalogOpenAPISpec/swagger.json", "MusicCatalogAPI");
+                options.RoutePrefix = "";
+            });
             app.UseRouting();
 
             app.UseAuthorization();

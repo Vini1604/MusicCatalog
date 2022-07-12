@@ -36,7 +36,7 @@ namespace MusicCatalogAPI.Controllers
             return Ok(musicsDto);
         }
 
-        [HttpGet("{musicId:int}")]
+        [HttpGet("{musicId:int}", Name = "GetMusic")]
         public IActionResult GetMusic(int musicId)
         {
             var music = _musicRepository.GetMusic(musicId);
